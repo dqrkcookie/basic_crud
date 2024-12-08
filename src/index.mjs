@@ -2,6 +2,8 @@ import express from "express";
 import path from "path";
 import methodOverride from "method-override";
 import { fileURLToPath } from "url";
+import { validationResult, matchedData, checkSchema } from "express-validator";
+import { postValidationSchema } from "./utils/validationSchemas.mjs";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,8 +32,10 @@ app.get("/users", (req, res) => {
   res.send(sampleDb);
 });
 
-app.post("/", (req, res) => {
-  const { userName, displayName } = req.body;
+app.post("/", checkSchema(postValidationSchema), (req, res) => {
+  console.log(validationResult(req));
+  const result = matchedData(req);
+  const { userName, displayName } = result;
   let id = sampleDb[sampleDb.length - 1].id + 1;
   if (userName && displayName)
     sampleDb.push({ id: id, userName: userName, displayName: displayName });
